@@ -3,18 +3,18 @@ package it.unibo.yahm.client.sensors
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import it.unibo.yahm.client.utils.Location
+import it.unibo.yahm.client.utils.GpsData
 import java.util.concurrent.ConcurrentLinkedDeque
 import kotlin.math.abs
 
 
-class TimedLocationSubscriber(gpsObservable: Observable<Location>, maxQueueSize: Int = 4096) {
+class TimedLocationSubscriber(gpsObservable: Observable<GpsData>, maxQueueSize: Int = 4096) {
 
-    private val queue = ConcurrentLinkedDeque<Location>()
+    private val queue = ConcurrentLinkedDeque<GpsData>()
     private val thread = Schedulers.newThread()
     private val disposable: Disposable
 
-    private var lastLocation: Location? = null
+    private var lastLocation: GpsData? = null
 
     init {
         disposable = gpsObservable.subscribeOn(thread).subscribe {
@@ -26,7 +26,7 @@ class TimedLocationSubscriber(gpsObservable: Observable<Location>, maxQueueSize:
     }
 
     @Synchronized
-    fun locationAt(timestamp: Long): Location? {
+    fun locationAt(timestamp: Long): GpsData? {
         if (lastLocation != null) {
             val firstLocation = queue.peekFirst() ?: return lastLocation
 

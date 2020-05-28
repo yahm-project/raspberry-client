@@ -4,7 +4,7 @@ import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.functions.BiFunction
 import io.reactivex.rxjava3.schedulers.Schedulers
 import io.reactivex.rxjava3.subjects.PublishSubject
-import it.unibo.yahm.client.utils.Location
+import it.unibo.yahm.client.utils.GpsData
 import it.unibo.yahm.client.utils.SensorEvent
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
@@ -21,8 +21,8 @@ class SensorCombiners(reactiveLocation: ReactiveLocation, reactiveSensor: Reacti
         val subject = PublishSubject.create<CombinedValues>()
         val thread = Schedulers.newThread()
 
-        var startLocation: Location? = null
-        var lastLocation: Location? = null
+        var startLocation: GpsData? = null
+        var lastLocation: GpsData? = null
         var length = 0.0
         val accelerationValues = mutableListOf<Acceleration>()
         val gyroscopeValues = mutableListOf<AngularVelocity>()

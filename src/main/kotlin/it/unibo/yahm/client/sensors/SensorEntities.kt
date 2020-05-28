@@ -2,7 +2,7 @@ package it.unibo.yahm.client.sensors
 
 import it.unibo.yahm.client.entities.Coordinate
 import it.unibo.yahm.client.entities.Quality
-import it.unibo.yahm.client.utils.Location
+import it.unibo.yahm.client.utils.GpsData
 import it.unibo.yahm.client.utils.SensorEvent
 
 
@@ -40,7 +40,7 @@ data class GpsLocation(
 ) {
 
     companion object {
-        fun fromLocation(location: Location): GpsLocation = GpsLocation(
+        fun fromLocation(location: GpsData): GpsLocation = GpsLocation(
             location.latitude,
             location.longitude,
             location.accuracy,
