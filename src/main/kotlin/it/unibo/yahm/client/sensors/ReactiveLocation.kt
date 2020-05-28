@@ -8,10 +8,16 @@ import it.unibo.yahm.client.utils.GpsData
 import net.sf.marineapi.nmea.event.AbstractSentenceListener
 import net.sf.marineapi.nmea.event.SentenceListener
 import net.sf.marineapi.nmea.io.SentenceReader
-import net.sf.marineapi.nmea.sentence.GGASentence
+import net.sf.marineapi.nmea.sentence.RMCSentence
 import net.sf.marineapi.nmea.util.Position
+import net.sf.marineapi.nmea.util.Time
 import java.io.IOException
 import java.sql.Timestamp
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.*
 
 
 class ReactiveLocation(
@@ -40,6 +46,11 @@ class ReactiveLocation(
         }
     }
 
+    fun utcToCet(timeInUtc: LocalDateTime?): LocalDateTime? {
+        val utcTimeZoned = ZonedDateTime.of(timeInUtc, ZoneId.of("UTC"))
+        return utcTimeZoned.withZoneSameInstant(ZoneId.of("CET")).toLocalDateTime()
+    }
+
     @Synchronized
     fun observe(): Observable<GpsData> {
         if (publishSubject == null) {
@@ -51,19 +62,24 @@ class ReactiveLocation(
 
     private fun initListener(publishSubject: PublishSubject<GpsData>?) {
 
-        sentenceListener = object : AbstractSentenceListener<GGASentence>() {
-            override fun sentenceRead(gga: GGASentence) {
-                val pos: Position = gga.position
+        sentenceListener = object : AbstractSentenceListener<RMCSentence>() {
+            override fun sentenceRead(sentence: RMCSentence) {
+                val pos: Position = sentence.position
+                val time: Time = sentence.time
+                val time2: Date = time.toDate(sentence.date.toDate())
+                val time3 = time2.toInstant().atZone(ZoneId.of("UTC")).toLocalDateTime()
+                val time4 = utcToCet(time3).toString().toLong()
                 publishSubject?.onNext(
                         GpsData(
                                 latitude = pos.latitude.toFloat(),
                                 longitude = pos.longitude.toFloat(),
-                                accuracy = gga.horizontalDOP.toFloat(),
-                                speed = 0f,
-                                time = Timestamp(System.currentTimeMillis()).time)
+                                accuracy = 0f,
+                                speed = (sentence.speed * 0.514444).toFloat(), //knots to meters/s
+                                time = time4)
                 )
             }
         }
+
         sentenceReader?.addSentenceListener(sentenceListener)
         sentenceReader?.start()
     }
