@@ -38,6 +38,11 @@ dependencies {
 
     // Pi4J
     implementation("com.pi4j:pi4j-parent:1.2")
+    implementation("com.pi4j:pi4j-core:1.2")
+    implementation("com.pi4j:pi4j-gpio-extension:1.2")
+    implementation("com.pi4j:pi4j-device:1.2")
+    implementation("com.pi4j:pi4j-distribution:1.2")
+
 
     //RxJava
     implementation("io.reactivex.rxjava3:rxandroid:3.0.0")
@@ -49,10 +54,13 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.8.1")
 
     // Tensorflow
-    implementation("org.tensorflow:tensorflow:+")
+    //implementation("org.tensorflow:tensorflow:+")
     /*implementation("org.tensorflow:tensorflow-lite:2.2.0")
     implementation("org.tensorflow:tensorflow-lite-gpu:0.0.0-nightly")
     implementation("org.tensorflow:tensorflow-lite-support:0.0.0-nightly")*/
+
+    implementation("net.sf.marineapi:marineapi:0.10.0")
+
 }
 
 application {
