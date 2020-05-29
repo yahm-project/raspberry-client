@@ -11,7 +11,7 @@ class RetrofitService() {
     val spotholeService: SpotholeService
 
     init {
-        val baseUrl = if (BuildConfig.DEBUG) {
+        val baseUrl = if (Config.DEBUG) {
            Config.POTHOLE_SERVICE_DEVELOPMENT_BASEURL
         } else {
             Config.POTHOLE_SERVICE_PRODUCTION_BASEURL

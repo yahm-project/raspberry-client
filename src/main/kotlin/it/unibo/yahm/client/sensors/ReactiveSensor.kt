@@ -31,7 +31,6 @@ class ReactiveSensor() {
         }
 
     private fun createObserver(sensorType: SensorType): PublishSubject<SensorEvent> {
-
         val subject = PublishSubject.create<SensorEvent>()
 
         val readerDisposable = Schedulers.newThread().schedulePeriodicallyDirect({

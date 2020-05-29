@@ -13,15 +13,4 @@ interface SpotholeService {
     @POST("roads/evaluations")
     fun sendEvaluations(@Body evaluations: Evaluations): Observable<Void>
 
-    @GET("roads/evaluations/relative")
-    fun loadEvaluationsFromUserPerspective(@Query("latitude") latitude: Double,
-                                           @Query("longitude") longitude: Double,
-                                           @Query("radius") radius: Float
-    ): Observable<List<Leg>>
-
-    @GET("roads/evaluations/")
-    fun loadEvaluations(@Query("latitude") latitude: Double,
-                                        @Query("longitude") longitude: Double,
-                                        @Query("radius") radius: Float): Observable<List<Leg>>
-
 }

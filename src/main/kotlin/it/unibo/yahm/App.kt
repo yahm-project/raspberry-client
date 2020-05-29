@@ -3,6 +3,9 @@
  */
 package it.unibo.yahm
 
+import io.reactivex.rxjava3.schedulers.Schedulers
+import it.unibo.yahm.client.sensors.*
+
 class App {
     val greeting: String
         get() {
@@ -11,6 +14,24 @@ class App {
 }
 
 fun main(args: Array<String>) {
+    val thread = Schedulers.newThread()
+
+//    ReactiveSensor().observer(SensorType.ACCELEROMETER).observeOn(thread).subscribe {
+//        println(Acceleration.fromSensorEvent(it))
+//    }
+//
+//    ReactiveSensor().observer(SensorType.GYROSCOPE).observeOn(thread).subscribe {
+//        println(AngularVelocity.fromSensorEvent(it))
+//    }
+
+    ReactiveLocation().observe().observeOn(thread).subscribe {
+        println(it)
+    }
+
+    Thread.sleep(100000)
+
+
+
     println(App().greeting)
 
 }

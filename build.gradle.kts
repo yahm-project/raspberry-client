@@ -53,14 +53,7 @@ dependencies {
     implementation("com.github.akarnokd:rxjava3-retrofit-adapter:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:2.8.1")
 
-    // Tensorflow
-    //implementation("org.tensorflow:tensorflow:+")
-    /*implementation("org.tensorflow:tensorflow-lite:2.2.0")
-    implementation("org.tensorflow:tensorflow-lite-gpu:0.0.0-nightly")
-    implementation("org.tensorflow:tensorflow-lite-support:0.0.0-nightly")*/
-
     implementation("net.sf.marineapi:marineapi:0.10.0")
-
 }
 
 application {

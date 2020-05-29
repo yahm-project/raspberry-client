@@ -1,7 +1,7 @@
 package it.unibo.yahm.client.utils
 
 
-class GpsData(
+data class GpsData(
         val latitude: Float,
         val longitude: Float,
         val time: Long,

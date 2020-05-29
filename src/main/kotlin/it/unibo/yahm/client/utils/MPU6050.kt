@@ -36,7 +36,7 @@ class MPU6050 {
         i2cBus = I2CFactory.getInstance(busNo)
         device = i2cBus!!.getDevice(address.toInt())
         // Wake up the MPU6050 from sleep since it starts in sleep mode by default.
-        device!!.write(PWR_MGMT_1.toInt(), 0x00)
+        device!!.write(PWR_MGMT_1, 0x00)
     }
     //General i2c Communication Methods
     /**
@@ -119,11 +119,6 @@ class MPU6050 {
      * Gets the x, y, and z accelerometer data.
      * @param g If true: returned values are in terms of gravity(g). If false: returned values are in terms of m/s^2.
      * @return Returns x, y, z in a double array [x, y, z].
-     * @throws Exception FIXME passes all errors onto the surrounding program.
-     */
-    /**
-     * Gets the x, y, and z accelerometer data.
-     * @return Returns x, y, z in a double array [x, y, z]. All values are in m/s^2.
      * @throws Exception FIXME passes all errors onto the surrounding program.
      */
     @JvmOverloads
@@ -217,9 +212,9 @@ class MPU6050 {
      */
     @Throws(Exception::class)
     fun getGyroData(): DoubleArray {
-        var x = readI2CWord(GYRO_XOUT0.toInt()).toDouble()
-        var y = readI2CWord(GYRO_YOUT0.toInt()).toDouble()
-        var z = readI2CWord(GYRO_ZOUT0.toInt()).toDouble()
+        var x = readI2CWord(GYRO_XOUT0).toDouble()
+        var y = readI2CWord(GYRO_YOUT0).toDouble()
+        var z = readI2CWord(GYRO_ZOUT0).toDouble()
         val gyroScaleModifier: Double
         val gyroRange = readRawGyroRange()
         gyroScaleModifier = when (gyroRange) {
@@ -279,6 +274,8 @@ class MPU6050 {
         private const val GYRO_ZOUT0: Int = 0x47
         private const val ACCEL_CONFIG: Int = 0x1C
         private const val GYRO_CONFIG: Int = 0x1B
+
+
         @JvmStatic
         fun main(args: Array<String>) {
             try {
