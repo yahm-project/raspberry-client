@@ -4,8 +4,8 @@ import io.reactivex.rxjava3.core.Scheduler
 import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import it.unibo.yahm.client.SpotholeService
-import it.unibo.yahm.client.classifiers.FakeQualityClassifier
 import it.unibo.yahm.client.classifiers.RoadIssueClassifier
+import it.unibo.yahm.client.classifiers.RoadQualityClassifier
 import it.unibo.yahm.client.entities.Coordinate
 import it.unibo.yahm.client.entities.Evaluations
 import it.unibo.yahm.client.entities.Obstacle
@@ -39,6 +39,7 @@ class RoadClassifiersService(
 
         roadIssueDisposable = sensorCombiners.combineByTime(SENSING_INTERVAL)
                 .observeOn(scheduler)
+                .filter { it.location != null }
                 .buffer(WINDOW_LENGTH, (WINDOW_LENGTH * WINDOW_OVERLAP_PERCENTAGE).toInt())
                 .map { values ->
                     val inputBuffer = FloatArray(WINDOW_LENGTH * FEATURES_COUNT)
@@ -64,13 +65,15 @@ class RoadClassifiersService(
                     )
                 }.filter { it.obstacleType != ObstacleType.NOTHING }
                 .subscribeOn(scheduler)
-                .subscribe {
+                .subscribe ({
                     obstacles.add(it)
-                }
+                }, {
+                  it.printStackTrace()
+                })
 
         roadQualityDisposable = sensorCombiners.combineByStretchLength(MIN_STRETCH_LENGTH)
                 .observeOn(scheduler)
-                .map(FakeQualityClassifier())  // TODO: replace with real classifier
+                .map(RoadQualityClassifier())
                 .buffer(QUALITY_BUFFER_SIZE, QUALITY_BUFFER_SIZE - 1)
                 .flatMap { buf ->
                     spotholeService.sendEvaluations(

@@ -1,10 +1,10 @@
 from flask import Flask, request, Response
-import tensorflow as tf
+import tflite_runtime.interpreter as tflite
 import numpy as np
 import json
 
-LABELS_FILENAME = "labels.txt"
-MODEL_FILENAME = "pothole-net.tflite"
+LABELS_FILENAME = "/home/pi/classifier/labels.txt"
+MODEL_FILENAME = "/home/pi/classifier/pothole-net.tflite"
 
 app = Flask(__name__)
 
@@ -14,7 +14,7 @@ def load_labels(path):
     return {i: line.strip() for i, line in enumerate(f.readlines())}
 
 
-interpreter = tf.lite.Interpreter(model_path=MODEL_FILENAME)
+interpreter = tflite.Interpreter(model_path=MODEL_FILENAME)
 interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
 output_details = interpreter.get_output_details()

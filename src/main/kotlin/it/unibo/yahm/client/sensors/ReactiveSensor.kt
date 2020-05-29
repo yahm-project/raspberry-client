@@ -7,40 +7,41 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import it.unibo.yahm.client.utils.Config
 import it.unibo.yahm.client.utils.MPU6050
 import it.unibo.yahm.client.utils.SensorEvent
-import java.sql.Timestamp
-import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 
-class ReactiveSensor() {
+class ReactiveSensor {
 
     private val publishSubjects = EnumMap<SensorType, PublishSubject<SensorEvent>>(SensorType::class.java)
-    private var readerDisposables = EnumMap<SensorType, Disposable?>(SensorType::class.java)
+    private val readerDisposables = EnumMap<SensorType, Disposable?>(SensorType::class.java)
+    private val thread = Schedulers.newThread()
 
     private val mpu6050 = MPU6050(Config.MPU6050_ADDR)
 
     @Synchronized
     fun observer(sensorType: SensorType): Observable<SensorEvent> =
-        if (publishSubjects.containsKey(sensorType)) {
-            publishSubjects[sensorType]!!
-        } else {
-            val observable = createObserver(sensorType)
-            publishSubjects[sensorType] = observable
-            observable
-        }
+            if (publishSubjects.containsKey(sensorType)) {
+                publishSubjects[sensorType]!!
+            } else {
+                val observable = createObserver(sensorType)
+                publishSubjects[sensorType] = observable
+                observable
+            }
 
     private fun createObserver(sensorType: SensorType): PublishSubject<SensorEvent> {
         val subject = PublishSubject.create<SensorEvent>()
 
-        val readerDisposable = Schedulers.newThread().schedulePeriodicallyDirect({
-            val values =  when(sensorType) {
-                SensorType.ACCELEROMETER -> mpu6050.getAccData()
+        val readerDisposable = thread.schedulePeriodicallyDirect({
+            val values = when (sensorType) {
+                SensorType.LINEAR_ACCELERATION -> mpu6050.getAccData()
                 SensorType.GYROSCOPE -> mpu6050.getGyroData()
                 else -> null
             }
 
-            subject.onNext(SensorEvent(values?.map { it.toFloat() }!!.toFloatArray(), Timestamp(System.currentTimeMillis()).time))
+            if (values != null) {
+                subject.onNext(SensorEvent(values.map { it.toFloat() }.toFloatArray(), System.currentTimeMillis()))
+            }
         }, 0, 20, TimeUnit.MILLISECONDS)
         readerDisposables[sensorType] = readerDisposable
 
@@ -49,6 +50,7 @@ class ReactiveSensor() {
 
     fun dispose(sensorType: SensorType) {
         readerDisposables[sensorType]?.dispose()
+        thread.shutdown()
     }
 
 }

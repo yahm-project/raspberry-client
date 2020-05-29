@@ -8,10 +8,12 @@ import it.unibo.yahm.client.utils.GpsData
 import net.sf.marineapi.nmea.event.AbstractSentenceListener
 import net.sf.marineapi.nmea.event.SentenceListener
 import net.sf.marineapi.nmea.io.SentenceReader
+import net.sf.marineapi.nmea.parser.DataNotAvailableException
 import net.sf.marineapi.nmea.sentence.RMCSentence
 import net.sf.marineapi.nmea.util.Position
 import java.sql.Timestamp
 import java.time.ZoneId
+import java.util.logging.Logger
 
 
 class ReactiveLocation {
@@ -19,6 +21,7 @@ class ReactiveLocation {
     private var publishSubject: PublishSubject<GpsData>? = null
     private var sentenceReader: SentenceReader? = null
     private var sentenceListener: SentenceListener? = null
+    private val log = Logger.getLogger(javaClass.name)
 
     init {
         val config = SerialConfig()
@@ -30,6 +33,12 @@ class ReactiveLocation {
                 .stopBits(StopBits._1)
                 .flowControl(FlowControl.NONE)
         serial.open(config)
+
+//        serial.addListener(object : SerialDataEventListener {
+//            override fun dataReceived(event: SerialDataEvent?) {
+//                println(event?.asciiString)
+//            }
+//        })
 
         sentenceReader = SentenceReader(serial.inputStream)
     }
@@ -53,18 +62,26 @@ class ReactiveLocation {
     private fun initListener(publishSubject: PublishSubject<GpsData>) {
         sentenceListener = object : AbstractSentenceListener<RMCSentence>() {
             override fun sentenceRead(sentence: RMCSentence) {
-                val pos: Position = sentence.position
-                val dateTime = sentence.time.toDate(sentence.date.toDate())
-                        .toInstant().atZone(ZoneId.of("CET")).toLocalDateTime()
+                try {
+                    log.finest("Receiving position ${sentence.position.latitude},${sentence.position.longitude}")
 
-                publishSubject.onNext(
-                        GpsData(
-                                latitude = pos.latitude.toFloat(),
-                                longitude = pos.longitude.toFloat(),
-                                accuracy = 0f,
-                                speed = (sentence.speed * 0.514444).toFloat(), //knots to meters/s
-                                time = Timestamp.valueOf(dateTime).time)
-                )
+                    val pos: Position = sentence.position
+                    val dateTime = sentence.time.toDate(sentence.date.toDate())
+                            .toInstant().atZone(ZoneId.of("CET")).toLocalDateTime()
+
+                    publishSubject.onNext(
+                            GpsData(
+                                    latitude = pos.latitude.toFloat(),
+                                    longitude = pos.longitude.toFloat(),
+                                    accuracy = 0f,
+                                    speed = (sentence.speed * 0.514444).toFloat(), //knots to meters/s
+                                    time = Timestamp.valueOf(dateTime).time)
+                    )
+                } catch (ex: DataNotAvailableException) {
+                    // pass
+                } catch (ex: Exception) {
+                    ex.printStackTrace()
+                }
             }
         }
 
