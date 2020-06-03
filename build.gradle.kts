@@ -53,7 +53,7 @@ dependencies {
     implementation("com.github.akarnokd:rxjava3-retrofit-adapter:3.0.0")
     implementation("com.squareup.retrofit2:converter-gson:2.8.1")
 
-    implementation("net.sf.marineapi:marineapi:0.10.0")
+    implementation("net.sf.marineapi:marineapi:0.11.0")
 }
 
 application {

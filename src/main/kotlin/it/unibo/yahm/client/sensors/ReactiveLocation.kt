@@ -7,8 +7,10 @@ import io.reactivex.rxjava3.subjects.PublishSubject
 import it.unibo.yahm.client.utils.GpsData
 import net.sf.marineapi.nmea.event.AbstractSentenceListener
 import net.sf.marineapi.nmea.event.SentenceListener
+import net.sf.marineapi.nmea.io.ExceptionListener
 import net.sf.marineapi.nmea.io.SentenceReader
 import net.sf.marineapi.nmea.parser.DataNotAvailableException
+import net.sf.marineapi.nmea.sentence.GGASentence
 import net.sf.marineapi.nmea.sentence.RMCSentence
 import net.sf.marineapi.nmea.util.Position
 import java.sql.Timestamp
@@ -21,7 +23,7 @@ class ReactiveLocation {
     private var publishSubject: PublishSubject<GpsData>? = null
     private var sentenceReader: SentenceReader? = null
     private var sentenceListener: SentenceListener? = null
-    private val log = Logger.getLogger(javaClass.name)
+    private val log = Logger.getLogger("yahm")
 
     init {
         val config = SerialConfig()
@@ -41,6 +43,11 @@ class ReactiveLocation {
 //        })
 
         sentenceReader = SentenceReader(serial.inputStream)
+        sentenceReader!!.setExceptionListener {
+            ExceptionListener {
+                // pass
+            }
+        }
     }
 
     @Synchronized
@@ -78,8 +85,9 @@ class ReactiveLocation {
                                     time = Timestamp.valueOf(dateTime).time)
                     )
                 } catch (ex: DataNotAvailableException) {
-                    // pass
+                    log.warning("Failed to retrieve data")
                 } catch (ex: Exception) {
+                    log.severe("Failed to parse GPS data")
                     ex.printStackTrace()
                 }
             }

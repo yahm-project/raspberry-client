@@ -143,7 +143,7 @@ class MPU6050 {
                 ACCEL_SCALE_MODIFIER_16G
             }
             else -> {
-                println("Unkown range - accel_scale_modifier set to self.ACCEL_SCALE_MODIFIER_2G\"")
+                // println("Unkown range - accel_scale_modifier set to self.ACCEL_SCALE_MODIFIER_2G\"")
                 ACCEL_SCALE_MODIFIER_2G
             }
         }
@@ -231,7 +231,7 @@ class MPU6050 {
                 GYRO_SCALE_MODIFIER_2000DEG
             }
             else -> {
-                println("Unknown range - gyro_scale_modifier set to self.GYRO_SCALE_MODIFIER_250DEG")
+                // println("Unknown range - gyro_scale_modifier set to self.GYRO_SCALE_MODIFIER_250DEG")
                 GYRO_SCALE_MODIFIER_250DEG
             }
         }
